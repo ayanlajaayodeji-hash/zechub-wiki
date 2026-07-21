@@ -1,0 +1,101 @@
+# Zakura Node Wiki: Advanced Topics
+## 1. Snapshot Bootstrapping
+Zakura includes native support for pruned chain snapshots, allowing node operators to bypass the long peer-to-peer sync from the genesis block.
+ * **State Download:** Official compressed snapshots are around **~11 GB** (pruned state).
+ * **Bootstrapping Speed:** Allows a fresh node instance to get up to speed **680× faster** than traditional P2P genesis syncing, bringing modern setup times down to under **2 minutes**.
+ * **How to Use:**
+   ```bash
+   # Download official pruned snapshot
+   wget https://snapshots.zakura.network/mainnet-latest.tar.gz
+   
+   # Extract into the Zakura cache directory
+   tar -xvf mainnet-latest.tar.gz -C ~/.cache/zakura/
+   
+   # Start zakurad - it will automatically detect state and sync remaining tip blocks
+   zakurad start
+   
+   ```
+## 2. RPC Compatibility Examples
+To facilitate smooth migration following the zcashd deprecation, Zakura provides a native **zcashd compatibility layer**. Standard JSON-RPC callers (like wallets or exchanges) do not need to rewrite their payload schemes.
+### Standard JSON-RPC Call Structure
+```bash
+curl --user myuser:mypassword \
+     --data-binary '{"jsonrpc": "1.0", "id":"wiki_test", "method": "getblockchaininfo", "params": [] }' \
+     -H 'content-type: text/plain;' \
+     http://127.0.0.1:8232/
+
+```
+### Supported Key Compatibility Endpoints
+ * **getblockchaininfo**: Returns chain parameters, height, current network upgrade status (e.g., *Ironwood / NU6.3*).
+ * **getrawtransaction**: Retrieves raw shielded or transparent transaction structures.
+ * **sendrawtransaction**: Validates and broadcasts pre-signed transactions to the P2P layer.
+ * **getbestblockhash / getblock**: Returns block metrics, transaction hashes, and headers.
+## 3. Performance Benchmarks vs. Zebra
+Zakura is an aggressive fork of the Zcash Foundation’s Zebra codebase, optimized specifically for **high-throughput execution** and lower block propagation delays.
+| Metric | Zebra (Standard) | Zakura Node | Performance Gain |
+|---|---|---|---|
+| **Mainnet Initial Sync** | ~20 hours 46 mins | **~4 hours 20 mins** | **~4.8x Faster** |
+| **Snapshot Bootstrapping** | N/A (Genesis required) | **< 2 minutes** (~11 GB) | **680x Faster** |
+| **Worst-Case Sandblast Validation** | Standard processing speed | Parallelized async pipeline | **Significantly Reduced Latency** |
+| **Pruned Disk Footprint** | ~200+ GB | **~11 – 15 GB** | **~90% Storage Reduction** |
+| **Target Scale Horizon** | ~28 KB/s | **Targeting 50k TPS / 100MB/s** | Built for Visa-scale privacy |
+## 4. Docker Deployment
+You can easily spin up a production-ready Zakura container using official images.
+### Direct Docker Run
+```bash
+docker run -d \
+  --name zakura-node \
+  -p 8233:8233 \
+  -p 8232:8232 \
+  -v zakurad-cache:/home/zakura/.cache/zakura \
+  valargroup/zakura:latest
+
+```
+### Docker Compose (docker-compose.yml)
+```yaml
+version: '3.8'
+
+services:
+  zakura:
+    image: valargroup/zakura:latest
+    container_name: zakura_mainnet
+    restart: unless-stopped
+    ports:
+      - "8233:8233"   # P2P Port
+      - "8232:8232"   # JSON-RPC Port
+    volumes:
+      - zakura_data:/home/zakura/.cache/zakura
+    environment:
+      - RUST_LOG=info,zakurad=debug
+
+volumes:
+  zakura_data:
+
+```
+## 5. System Requirements
+### Minimum Requirements (Pruned / Snapshot Mode)
+ * **CPU:** Dual-core 64-bit x86-64 or ARM64 processor.
+ * **RAM:** 8 GB RAM.
+ * **Disk:** 30 GB SSD storage (pruned node + database overhead).
+ * **Network:** 10 Mbps broadband connection.
+### Recommended Production Requirements (Full Archive / High TPS)
+ * **CPU:** 8+ modern CPU cores (optimized for multi-threaded state validation).
+ * **RAM:** 16 GB – 32 GB RAM.
+ * **Disk:** 500+ GB NVMe SSD (High IOPS required for fast state read/writes).
+ * **Network:** 1 Gbps unmetered connection.
+## 6. Monitoring and Logging
+### Logging Controls
+Zakura uses Rust’s tracing-subscriber architecture, configured via standard environment flags:
+```bash
+# Enable verbose debug logs for consensus and state pipeline
+RUST_LOG="info,zakura_consensus=debug,zakura_state=trace" zakurad start
+
+```
+### Prometheus Metrics
+Zakura exposes runtime performance counters for Prometheus metrics collection (default endpoint: [http://127.0.0.1:9999/metrics](http://127.0.0.1:9999/metrics)).
+ * **Key Metrics to Track:**
+   * zakura_chain_height: Current validated chain tip height.
+   * zakura_p2p_connected_peers: Active peer connection count.
+   * zakura_block_verification_time_seconds: Latency timer for validating block proofs.
+   * zakura_mempool_size_bytes: Current size of the unconfirmed transaction pool.
+
