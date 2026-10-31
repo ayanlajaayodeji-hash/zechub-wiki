@@ -293,6 +293,12 @@ export default function DeveloperPage() {
       url: "https://github.com/ChainSafe/WebZjs",
     },
     {
+{
+  title: "Zcash JS",
+  description:
+    "Experimental TypeScript SDK from Zcash Labs for building Zcash applications on web, server, and mobile. Provides public and light clients, local wallets, scanning, signing, and payment recovery.",
+  url: "https://zcashlabs.github.io/zcashjs/",
+},
       title:
         t?.pages?.developers?.advancedLinks?.noirWalletSdk ??
         "Noir Wallet SDK",
