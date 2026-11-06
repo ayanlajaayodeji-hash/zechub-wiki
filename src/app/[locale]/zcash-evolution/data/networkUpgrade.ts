@@ -302,13 +302,13 @@ export const networkUpgrades: NetworkUpgrade[] = [
     ],
     privacyLevel: 96,
     privacyLabel: "Audited Ironwood Pool",
-    status: "current",
+    status: "past",
     eraColor: "28 90% 42%",
   },
-    {
+  {
     id: "nu7",
     notice: {
-      message: "Sprout holders: NU7 disables v4 transactions, which current Sprout transfers require. Review migration options before Mainnet activation.",
+      message: "Sprout holders: NU7 disables v4 transactions, which current Sprout transfers require. Remaining Sprout funds are unspendable. Review any recovery options promptly.",
       guidance: "Community-maintained guidance for supported wallets and recovery material; recovery is not guaranteed.",
       links: [
         { title: "ZecHub wallet recovery guide", href: "https://zechub.wiki/using-zcash/recovering-funds" },
@@ -317,14 +317,13 @@ export const networkUpgrades: NetworkUpgrade[] = [
     },
     name: "NU7",
     title: "NU7 — Shorter block intervals and network sustainability",
-    subtitle: "Current proposal",
-    date: "Tentative Mainnet target November 5, 2026",
-    // Official rollout sources rechecked October 16, 2026; Mainnet height is unset.
+    subtitle: "Faster Blocks & Network Sustainability",
+    date: "November 5 2026",
     networkRollout: [
       { network: "Testnet", state: "activated", date: "October 4, 2026", activationHeight: 4465026 },
-      { network: "Mainnet", state: "tentative", date: "November 5, 2026" },
+      { network: "Mainnet", state: "activated", date: "November 5, 2026", activationHeight: 3543405 },
     ],
-    blockHeight: null,
+    blockHeight: 3543405,
     comparison: {
       label: "Target block spacing",
       before: "75 seconds",
@@ -361,7 +360,7 @@ export const networkUpgrades: NetworkUpgrade[] = [
     ],
     privacyLevel: 98,
     privacyLabel: "Sustainable Privacy",
-    status: "future",
+    status: "current",
     eraColor: "265 70% 52%",
   },
 ];
